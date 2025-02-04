@@ -5,18 +5,35 @@ import { setupAuth } from "./auth";
 import { parlayCalcSchema } from "@shared/schema";
 import { findOptimalParlay, calculateParlayOdds, americanToDecimal } from "./utils/betting-math";
 import { generateBetExplanation } from "./utils/ai-utils";
+import { getAllOdds, formatOdds, type Game, type Sport } from "./utils/odds-api";
 
-// Mock available bets until we integrate with The Odds API
-const MOCK_AVAILABLE_BETS = [
-  { game: "Lakers vs Warriors", pick: "Lakers -5.5", odds: "-110" },
-  { game: "Celtics vs Heat", pick: "Over 220.5", odds: "-105" },
-  { game: "Suns vs Clippers", pick: "Suns ML", odds: "-120" },
-  { game: "Bucks vs 76ers", pick: "Bucks +2.5", odds: "+105" },
-  { game: "Nuggets vs Trail Blazers", pick: "Under 235.5", odds: "-115" },
-];
+// Cache for available bets
+let AVAILABLE_BETS: Array<{ game: string; pick: string; odds: string }> = [];
+let lastFetch = 0;
+const FETCH_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+async function updateAvailableBets() {
+  const now = Date.now();
+  if (now - lastFetch > FETCH_INTERVAL) {
+    const odds = await getAllOdds();
+    const allGames = Object.values(odds).flat();
+    AVAILABLE_BETS = formatOdds(allGames);
+    lastFetch = now;
+  }
+}
 
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
+
+  app.get("/api/odds", async (req, res) => {
+    try {
+      const odds = await getAllOdds();
+      res.json(odds);
+    } catch (error) {
+      console.error("Error fetching odds:", error);
+      res.status(500).json({ error: "Failed to fetch odds" });
+    }
+  });
 
   app.post("/api/parlay-calc", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
@@ -28,11 +45,14 @@ export function registerRoutes(app: Express): Server {
 
     const { targetWinAmount, wagerAmount } = validation.data;
 
+    // Update available bets
+    await updateAvailableBets();
+
     // Find optimal parlay combination
     const selections = findOptimalParlay(
       targetWinAmount + wagerAmount, // total payout including wager
       wagerAmount,
-      MOCK_AVAILABLE_BETS
+      AVAILABLE_BETS
     );
 
     // Calculate actual parlay odds
