@@ -17,6 +17,16 @@ export function americanToDecimal(americanOdds: string): number {
 }
 
 /**
+ * Convert decimal odds to American odds
+ * @param decimalOdds Decimal odds (e.g. 2.5)
+ * @returns American odds (e.g. +150, -110)
+ */
+export function decimalToAmerican(decimalOdds: number): string {
+  const americanOdds = (decimalOdds - 1) * 100;
+  return americanOdds >= 0 ? `+${Math.round(americanOdds)}` : Math.round(americanOdds).toString();
+}
+
+/**
  * Convert decimal odds to implied probability
  * @param decimalOdds Decimal odds (e.g. 2.5)
  * @returns Probability between 0 and 1
@@ -70,34 +80,34 @@ export function findOptimalParlay(
     decimalOdds: americanToDecimal(bet.odds)
   }));
 
-  // For high payouts, sort by highest odds (highest risk/reward)
-  const payoutRatio = targetPayout / wager;
-  if (payoutRatio > 5) {
-    betsWithDecimal.sort((a, b) => b.decimalOdds - a.decimalOdds);
-  } else {
-    // For lower payouts, sort by lowest odds (safer picks)
-    betsWithDecimal.sort((a, b) => a.decimalOdds - b.decimalOdds);
-  }
-
   // Calculate required odds to achieve target payout
   const requiredDecimalOdds = targetPayout / wager;
 
-  // Try different combinations of bets to get close to target
-  for (let numPicks = 2; numPicks <= Math.min(4, betsWithDecimal.length); numPicks++) {
-    // Try different combinations of numPicks bets
-    for (let startIdx = 0; startIdx <= betsWithDecimal.length - numPicks; startIdx++) {
-      const selectedBets = betsWithDecimal.slice(startIdx, startIdx + numPicks);
-      const parlayOdds = calculateParlayOdds(selectedBets.map(b => b.decimalOdds));
-      const potentialPayout = calculateParlayPayout(wager, parlayOdds);
+  // Sort bets by decimal odds (highest to lowest)
+  betsWithDecimal.sort((a, b) => b.decimalOdds - a.decimalOdds);
 
-      // If we're within 20% of target payout, use this combination
-      if (potentialPayout >= targetPayout * 0.8 && potentialPayout <= targetPayout * 1.2) {
-        return selectedBets.map(({ game, pick, odds }) => ({ game, pick, odds }));
+  // Try combinations of different sizes to reach target
+  for (let numPicks = 2; numPicks <= Math.min(4, betsWithDecimal.length); numPicks++) {
+    // Generate all possible combinations of numPicks size
+    for (let i = 0; i <= betsWithDecimal.length - numPicks; i++) {
+      for (let j = i + 1; j <= betsWithDecimal.length - numPicks + 1; j++) {
+        // Get current combination
+        const selectedBets = betsWithDecimal.slice(i, i + numPicks);
+        const parlayOdds = calculateParlayOdds(selectedBets.map(b => b.decimalOdds));
+        const potentialPayout = calculateParlayPayout(wager, parlayOdds);
+
+        // If this combination gets us within 10% of target, use it
+        if (potentialPayout >= targetPayout * 0.9 && potentialPayout <= targetPayout * 1.1) {
+          return selectedBets.map(({ game, pick, odds }) => ({ game, pick, odds }));
+        }
       }
     }
   }
 
-  // If no optimal combination found, use bets with highest combined odds
-  const highestOddsBets = betsWithDecimal.slice(0, 3);
-  return highestOddsBets.map(({ game, pick, odds }) => ({ game, pick, odds }));
+  // If no combination gets close enough to target, return the highest possible payout combination
+  const bestBets = betsWithDecimal
+    .slice(0, 3)
+    .sort((a, b) => b.decimalOdds - a.decimalOdds);
+
+  return bestBets.map(({ game, pick, odds }) => ({ game, pick, odds }));
 }
