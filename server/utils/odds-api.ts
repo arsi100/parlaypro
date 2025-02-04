@@ -35,6 +35,7 @@ async function fetchOdds(sport: Sport): Promise<Game[]> {
     regions: "us",
     markets: "spreads,h2h,totals",
     oddsFormat: "american",
+    dateFormat: "iso",
   });
 
   const response = await fetch(
@@ -46,6 +47,7 @@ async function fetchOdds(sport: Sport): Promise<Game[]> {
   }
 
   const data = await response.json();
+  console.log(`[Odds API] Fetched ${data.length} games for ${sport}`);
   return data;
 }
 
@@ -62,6 +64,16 @@ export async function getOdds(sport: Sport): Promise<Game[]> {
   }
 
   const freshData = await fetchOdds(sport);
+
+  // Sort games by commence time
+  freshData.sort((a, b) => new Date(a.commence_time).getTime() - new Date(b.commence_time).getTime());
+
+  // Log game details for debugging
+  console.log(`[Odds API] ${sport} games:`);
+  freshData.forEach(game => {
+    console.log(`- ${game.away_team} @ ${game.home_team} (${new Date(game.commence_time).toLocaleString()})`);
+  });
+
   cache.set(sport, { data: freshData, timestamp: now });
   return freshData;
 }
@@ -96,9 +108,14 @@ export function formatOdds(games: Game[]): Array<{
   odds: string;
 }> {
   return games.flatMap((game) => {
-    const bets = [];
+    const bets: Array<{
+      game: string;
+      pick: string;
+      odds: string;
+    }> = [];
+
     const bookmaker = game.bookmakers[0]; // Use first bookmaker for consistency
-    
+
     if (!bookmaker) return [];
 
     // Add moneyline bets
