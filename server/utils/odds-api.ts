@@ -33,7 +33,7 @@ async function fetchOdds(sport: Sport): Promise<Game[]> {
   const params = new URLSearchParams({
     apiKey: env.ODDS_API_KEY!,
     regions: "us",
-    markets: "spreads,h2h,totals,player_points,player_rebounds,player_assists,team_totals", // Added prop markets
+    markets: "spreads,h2h,totals",
     oddsFormat: "american",
     dateFormat: "iso",
   });
@@ -92,12 +92,6 @@ export async function getOdds(sport: Sport): Promise<Game[]> {
 
   // Sort games by commence time
   filteredData.sort((a, b) => new Date(a.commence_time).getTime() - new Date(b.commence_time).getTime());
-
-  // Log game details for debugging
-  console.log(`[Odds API] ${sport} games (sorted by time):`);
-  filteredData.forEach(game => {
-    console.log(`- ${game.away_team} @ ${game.home_team} (${new Date(game.commence_time).toLocaleTimeString()})`);
-  });
 
   cache.set(sport, { data: filteredData, timestamp: now });
   return filteredData;
