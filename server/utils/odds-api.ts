@@ -51,14 +51,10 @@ async function fetchOdds(sport: Sport): Promise<Game[]> {
   return data;
 }
 
-function isNFLGame(sport: Sport): boolean {
-  return sport === "americanfootball_nfl";
-}
-
 function filterGamesBySport(games: Game[], sport: Sport): Game[] {
   const now = new Date();
 
-  if (isNFLGame(sport)) {
+  if (sport === "americanfootball_nfl") {
     // For NFL, show current week's games (Tuesday to Monday)
     const tuesday = new Date(now);
     tuesday.setDate(now.getDate() - ((now.getDay() + 6) % 7)); // Get last Tuesday
@@ -71,8 +67,10 @@ function filterGamesBySport(games: Game[], sport: Sport): Game[] {
       const gameTime = new Date(game.commence_time);
       return gameTime >= tuesday && gameTime < nextTuesday;
     });
+  } else if (sport === "baseball_mlb") {
+    return []; // MLB is off-season
   } else {
-    // For daily sports (NBA, MLB, NHL), show today's games
+    // For daily sports (NBA, NHL), show today's games
     const todayStart = new Date(now);
     todayStart.setHours(0, 0, 0, 0);
 
