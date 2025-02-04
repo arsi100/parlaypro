@@ -51,6 +51,41 @@ async function fetchOdds(sport: Sport): Promise<Game[]> {
   return data;
 }
 
+function isNFLGame(sport: Sport): boolean {
+  return sport === "americanfootball_nfl";
+}
+
+function filterGamesBySport(games: Game[], sport: Sport): Game[] {
+  const now = new Date();
+
+  if (isNFLGame(sport)) {
+    // For NFL, show current week's games (Tuesday to Monday)
+    const tuesday = new Date(now);
+    tuesday.setDate(now.getDate() - ((now.getDay() + 6) % 7)); // Get last Tuesday
+    tuesday.setHours(0, 0, 0, 0);
+
+    const nextTuesday = new Date(tuesday);
+    nextTuesday.setDate(tuesday.getDate() + 7);
+
+    return games.filter(game => {
+      const gameTime = new Date(game.commence_time);
+      return gameTime >= tuesday && gameTime < nextTuesday;
+    });
+  } else {
+    // For daily sports (NBA, MLB, NHL), show today's games
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+
+    const tomorrowStart = new Date(todayStart);
+    tomorrowStart.setDate(todayStart.getDate() + 1);
+
+    return games.filter(game => {
+      const gameTime = new Date(game.commence_time);
+      return gameTime >= todayStart && gameTime < tomorrowStart;
+    });
+  }
+}
+
 // Cache odds data for 5 minutes
 const cache = new Map<Sport, { data: Game[]; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
@@ -64,18 +99,19 @@ export async function getOdds(sport: Sport): Promise<Game[]> {
   }
 
   const freshData = await fetchOdds(sport);
+  const filteredData = filterGamesBySport(freshData, sport);
 
   // Sort games by commence time
-  freshData.sort((a, b) => new Date(a.commence_time).getTime() - new Date(b.commence_time).getTime());
+  filteredData.sort((a, b) => new Date(a.commence_time).getTime() - new Date(b.commence_time).getTime());
 
   // Log game details for debugging
   console.log(`[Odds API] ${sport} games (sorted by time):`);
-  freshData.forEach(game => {
+  filteredData.forEach(game => {
     console.log(`- ${game.away_team} @ ${game.home_team} (${new Date(game.commence_time).toLocaleTimeString()})`);
   });
 
-  cache.set(sport, { data: freshData, timestamp: now });
-  return freshData;
+  cache.set(sport, { data: filteredData, timestamp: now });
+  return filteredData;
 }
 
 export async function getAllOdds(): Promise<Record<Sport, Game[]>> {
