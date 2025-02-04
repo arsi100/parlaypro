@@ -105,6 +105,13 @@ export default function ParlayCalculator() {
             </div>
 
             <div>
+              <h3 className="font-bold mb-2">Expert Analysis</h3>
+              <p className="text-sm text-muted-foreground">
+                {JSON.parse(mutation.data.recommendations).explanation}
+              </p>
+            </div>
+
+            <div>
               <h3 className="font-bold mb-2">Selected Bets</h3>
               <div className="space-y-2">
                 {JSON.parse(mutation.data.recommendations).selections.map(

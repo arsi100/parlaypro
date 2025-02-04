@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { parlayCalcSchema } from "@shared/schema";
 import { findOptimalParlay, calculateParlayOdds, americanToDecimal } from "./utils/betting-math";
+import { generateBetExplanation } from "./utils/ai-utils";
 
 // Mock available bets until we integrate with The Odds API
 const MOCK_AVAILABLE_BETS = [
@@ -38,12 +39,24 @@ export function registerRoutes(app: Express): Server {
     const decimalOdds = selections.map(bet => americanToDecimal(bet.odds));
     const parlayDecimalOdds = calculateParlayOdds(decimalOdds);
     const parlayAmericanOdds = Math.round((parlayDecimalOdds - 1) * 100);
+    const parlayOddsStr = parlayAmericanOdds > 0 ? `+${parlayAmericanOdds}` : parlayAmericanOdds.toString();
+    const impliedProbability = (1 / parlayDecimalOdds * 100).toFixed(1) + "%";
+
+    // Generate AI explanation
+    const explanation = await generateBetExplanation(
+      targetWinAmount,
+      wagerAmount,
+      selections,
+      parlayOddsStr,
+      impliedProbability
+    );
 
     const recommendation = {
-      parlayOdds: parlayAmericanOdds > 0 ? `+${parlayAmericanOdds}` : parlayAmericanOdds.toString(),
+      parlayOdds: parlayOddsStr,
       expectedPayout: (wagerAmount * parlayDecimalOdds).toFixed(2),
       selections,
-      impliedProbability: (1 / parlayDecimalOdds * 100).toFixed(1) + "%"
+      impliedProbability,
+      explanation
     };
 
     const bet = await storage.createParlayBet({
