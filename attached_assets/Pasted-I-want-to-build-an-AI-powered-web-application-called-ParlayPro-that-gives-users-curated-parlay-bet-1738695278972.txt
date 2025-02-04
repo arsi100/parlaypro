@@ -1,0 +1,73 @@
+I want to build an AI-powered web application called "ParlayPro" that gives users curated parlay betting recommendations based on their desired payout and wager. For example, if a user wants to win $1,000 off a $10 bet, the app should use advanced intelligence, logic, data analysis, and predictive analytics to generate a customized parlay play. The application must also be capable of providing in-depth data analysis for betting insights, fantasy sports, and general interest.
+
+**Key Features and Requirements:**
+
+1. **Core Functionality:**
+   - **Parlay Recommendation Engine:**  
+     - Users enter a target win amount and a wager amount.
+     - The AI engine computes a recommended parlay play using a combination of sports prop bets.
+     - The engine must incorporate advanced statistical analysis, predictive modeling, and contextual factors such as weather, player performance, injuries, and other relevant data.
+     - Each recommendation should come with a detailed explanation (i.e., the underlying logic, data points considered, and reasoning for each bet).
+   
+   - **Data Analysis for Betting & Fantasy:**  
+     - Provide users with analytical dashboards that crunch statistics, historical trends, and advanced metrics (e.g., using data from APIs like PFF or other sports analytics sources).
+     - Allow users to filter and search for data by sport, date, team, weather conditions, and other parameters.
+   
+   - **Chat-based UI & Traditional Search Interface:**  
+     - Primary UI should be a conversational chat interface (similar to a chatbot) where users ask for recommendations or analysis.
+     - Additionally, provide a traditional search and filter interface for users who prefer browsing or deep diving into statistics.
+   
+2. **Monetization and User Engagement:**
+   - **Subscription Model:**  
+     - Offer a free tier with basic recommendations and data access.
+     - Implement a subscription for advanced features (e.g., deeper analytics, more complex parlays, historical data analysis).
+   
+   - **Affiliate Integration:**  
+     - Encourage users to sign up with partnered sportsbooks. Provide bonus offers that can be applied to their parlays.
+     - The app should include mechanisms to track affiliate referrals (research and integrate with sportsbook affiliate programs; provide guidance on qualifying for these programs).
+   
+   - **Rewards and Contests:**  
+     - Develop a rewards system with contests (e.g., ladder challenges or “bold parlay” contests) where users can earn rewards—even if their recommendations lose (similar to “bad beat” compensations).
+     - Include a mechanism for legally compliant reward distribution (with appropriate disclaimers and terms-of-service to be developed later).
+
+3. **Data Integration and AI Intelligence:**
+   - **Data Sources & APIs:**  
+     - Research and integrate various sports data APIs to pull in live odds, historical performance, weather conditions, injury reports, etc.
+     - Ensure the system is flexible to add or change data sources over time.
+   
+   - **AI and Predictive Analytics:**  
+     - Use AI/ML models to process the data and predict outcomes. Provide explanations and confidence scores with each recommendation.
+     - Include an admin interface to update, train, and manage these models as new data comes in.
+     - Provide guidance on how to customize and update the predictive logic over time.
+
+4. **Technical Stack and Architecture:**
+   - **Backend:**  
+     - Use Node.js with Express to build a RESTful API.
+     - Organize backend code into modules (e.g., routes, controllers, services, and models) with a clear separation of concerns.
+     - Integrate a database (such as MongoDB or PostgreSQL) to store user data, parlay recommendations, historical data, and affiliate tracking.
+   
+   - **Frontend:**  
+     - Use React for building a responsive UI with a chat interface and a traditional search/filter dashboard.
+     - Ensure that the UI is mobile-friendly and provides real-time updates (e.g., using websockets or similar technology where needed).
+   
+   - **Testing & Documentation:**  
+     - Include unit and integration tests for both backend and frontend components.
+     - Provide inline comments, a detailed README, and documentation on how to set up the project, run tests, and deploy.
+
+5. **Additional Considerations:**
+   - **Scope Prioritization:**  
+     - Start by focusing on the gambling/betting aspect of the app. Once the core functionality is solid and stable, consider adding fantasy sports analysis as an additional module.
+   
+   - **Using AI Agents in Development:**  
+     - Explore leveraging AI agents (like this one) to assist in compiling and processing data, generating code snippets, and refining the predictive models.
+     - Document the process and the benefits of using AI agents in the development workflow, especially for handling complex data integration tasks.
+
+**Task for the Replit AI Agent:**
+Please generate the complete project structure and starter code for "ParlayPro," covering both backend and frontend parts as described above. Include:
+- A detailed explanation of your design choices, especially for the predictive analytics and data integration modules.
+- Instructions for how to integrate third-party APIs (with placeholders where API keys and endpoints need to be added).
+- Guidelines on how to extend the system to incorporate fantasy sports analysis in the future.
+- A section on how affiliate tracking and reward systems might be implemented, including any legal or compliance considerations that need further research.
+- Comments and documentation to help understand the logic behind each major component.
+
+Your output should serve as a comprehensive blueprint for developing this application, including initial code files, directory structure, and development notes.
