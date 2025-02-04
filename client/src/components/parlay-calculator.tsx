@@ -85,16 +85,41 @@ export default function ParlayCalculator() {
 
       {mutation.data && (
         <Card className="mt-4 p-4">
-          <h3 className="font-bold mb-2">Recommended Parlay</h3>
-          <div className="space-y-2">
-            {JSON.parse(mutation.data.recommendations).selections.map(
-              (selection: any, i: number) => (
-                <div key={i} className="flex justify-between text-sm">
-                  <span>{selection.game}</span>
-                  <span className="font-medium">{selection.pick}</span>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-bold mb-2">Parlay Details</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>Parlay Odds:</div>
+                <div className="font-medium text-right">
+                  {JSON.parse(mutation.data.recommendations).parlayOdds}
                 </div>
-              )
-            )}
+                <div>Expected Payout:</div>
+                <div className="font-medium text-right">
+                  ${JSON.parse(mutation.data.recommendations).expectedPayout}
+                </div>
+                <div>Implied Probability:</div>
+                <div className="font-medium text-right">
+                  {JSON.parse(mutation.data.recommendations).impliedProbability}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-bold mb-2">Selected Bets</h3>
+              <div className="space-y-2">
+                {JSON.parse(mutation.data.recommendations).selections.map(
+                  (selection: any, i: number) => (
+                    <div key={i} className="flex justify-between text-sm">
+                      <div className="flex-1">
+                        <div className="font-medium">{selection.game}</div>
+                        <div className="text-muted-foreground">{selection.pick}</div>
+                      </div>
+                      <div className="font-medium self-start ml-4">{selection.odds}</div>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
           </div>
         </Card>
       )}

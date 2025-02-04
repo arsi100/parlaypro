@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { parlayCalcSchema } from "@shared/schema";
-import { findOptimalParlay } from "./utils/betting-math";
+import { findOptimalParlay, calculateParlayOdds, americanToDecimal } from "./utils/betting-math";
 
 // Mock available bets until we integrate with The Odds API
 const MOCK_AVAILABLE_BETS = [
@@ -34,15 +34,22 @@ export function registerRoutes(app: Express): Server {
       MOCK_AVAILABLE_BETS
     );
 
+    // Calculate actual parlay odds
+    const decimalOdds = selections.map(bet => americanToDecimal(bet.odds));
+    const parlayDecimalOdds = calculateParlayOdds(decimalOdds);
+    const parlayAmericanOdds = Math.round((parlayDecimalOdds - 1) * 100);
+
     const recommendation = {
-      parlayOdds: "+650", // This will be calculated properly when we get real odds
-      selections
+      parlayOdds: parlayAmericanOdds > 0 ? `+${parlayAmericanOdds}` : parlayAmericanOdds.toString(),
+      expectedPayout: (wagerAmount * parlayDecimalOdds).toFixed(2),
+      selections,
+      impliedProbability: (1 / parlayDecimalOdds * 100).toFixed(1) + "%"
     };
 
     const bet = await storage.createParlayBet({
       userId: req.user.id,
-      targetWinAmount,
-      wagerAmount,
+      targetWinAmount: targetWinAmount.toString(),
+      wagerAmount: wagerAmount.toString(),
       recommendations: JSON.stringify(recommendation),
       createdAt: new Date()
     });
