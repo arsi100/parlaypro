@@ -33,7 +33,7 @@ async function fetchOdds(sport: Sport): Promise<Game[]> {
   const params = new URLSearchParams({
     apiKey: env.ODDS_API_KEY!,
     regions: "us",
-    markets: "spreads,h2h,totals",
+    markets: "spreads,h2h,totals,player_points,player_rebounds,player_assists,team_totals", // Added prop markets
     oddsFormat: "american",
     dateFormat: "iso",
   });

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
 
 const sportDisplayNames: Record<string, string> = {
   basketball_nba: "NBA",
@@ -54,16 +55,17 @@ export default function OddsDisplay() {
 
               return (
                 <Card key={game.id} className="p-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-sm text-muted-foreground">
-                      {new Date(game.commence_time).toLocaleTimeString([], {
-                        hour: "numeric",
-                        minute: "2-digit",
-                        timeZoneName: "short",
-                      })}
-                    </span>
-                    <span className="text-sm font-medium">
-                      {sportDisplayNames[sport]}
+                  <div className="flex flex-col mb-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">
+                        {format(new Date(game.commence_time), "MMM d, yyyy")}
+                      </span>
+                      <span className="text-sm font-medium">
+                        {sportDisplayNames[sport]}
+                      </span>
+                    </div>
+                    <span className="text-sm text-muted-foreground mt-1">
+                      {format(new Date(game.commence_time), "h:mm a z")}
                     </span>
                   </div>
 
