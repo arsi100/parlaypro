@@ -79,10 +79,19 @@ function filterGamesBySport(games: Game[], sport: Sport): Game[] {
     const tomorrowStart = new Date(todayStart);
     tomorrowStart.setDate(todayStart.getDate() + 1);
 
-    return games.filter(game => {
+    console.log(`[Odds API] Filtering ${sport} games:`);
+    console.log(`Today start: ${todayStart.toISOString()}`);
+    console.log(`Tomorrow start: ${tomorrowStart.toISOString()}`);
+
+    const filteredGames = games.filter(game => {
       const gameTime = new Date(game.commence_time);
-      return gameTime >= todayStart && gameTime < tomorrowStart;
+      console.log(`Game: ${game.away_team} @ ${game.home_team}, Time: ${gameTime.toISOString()}`);
+      const isToday = gameTime >= todayStart && gameTime < tomorrowStart;
+      console.log(`Is today's game: ${isToday}`);
+      return isToday;
     });
+
+    return filteredGames;
   }
 }
 
