@@ -65,17 +65,28 @@ export async function getOdds(sport: Sport): Promise<Game[]> {
 
   const freshData = await fetchOdds(sport);
 
+  // Filter for today's games
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const todaysGames = freshData.filter(game => {
+    const gameTime = new Date(game.commence_time);
+    return gameTime >= today && gameTime < tomorrow;
+  });
+
   // Sort games by commence time
-  freshData.sort((a, b) => new Date(a.commence_time).getTime() - new Date(b.commence_time).getTime());
+  todaysGames.sort((a, b) => new Date(a.commence_time).getTime() - new Date(b.commence_time).getTime());
 
   // Log game details for debugging
-  console.log(`[Odds API] ${sport} games:`);
-  freshData.forEach(game => {
+  console.log(`[Odds API] ${sport} games for today (${today.toLocaleDateString()}):`);
+  todaysGames.forEach(game => {
     console.log(`- ${game.away_team} @ ${game.home_team} (${new Date(game.commence_time).toLocaleString()})`);
   });
 
-  cache.set(sport, { data: freshData, timestamp: now });
-  return freshData;
+  cache.set(sport, { data: todaysGames, timestamp: now });
+  return todaysGames;
 }
 
 export async function getAllOdds(): Promise<Record<Sport, Game[]>> {
