@@ -70,26 +70,8 @@ function filterGamesBySport(games: Game[], sport: Sport): Game[] {
   } else if (sport === "baseball_mlb") {
     return []; // MLB is off-season
   } else {
-    // For daily sports (NBA, NHL), show today's games
-    const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 0, 0);
-
-    const tomorrowStart = new Date(todayStart);
-    tomorrowStart.setDate(todayStart.getDate() + 1);
-
-    console.log(`[Odds API] Filtering ${sport} games:`);
-    console.log(`Today start: ${todayStart.toISOString()}`);
-    console.log(`Tomorrow start: ${tomorrowStart.toISOString()}`);
-
-    const filteredGames = games.filter(game => {
-      const gameTime = new Date(game.commence_time);
-      console.log(`Game: ${game.away_team} @ ${game.home_team}, Time: ${gameTime.toISOString()}`);
-      const isToday = gameTime >= todayStart && gameTime < tomorrowStart;
-      console.log(`Is today's game: ${isToday}`);
-      return isToday;
-    });
-
-    return filteredGames;
+    // For NBA and NHL, show all upcoming games
+    return games;
   }
 }
 
@@ -157,7 +139,7 @@ export function formatOdds(games: Game[]): Array<{
       odds: string;
     }> = [];
 
-    const bookmaker = game.bookmakers[0]; // Use first bookmaker for consistency
+    const bookmaker = game.bookmakers[0];
 
     if (!bookmaker) return [];
 
