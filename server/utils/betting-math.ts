@@ -70,23 +70,34 @@ export function findOptimalParlay(
     decimalOdds: americanToDecimal(bet.odds)
   }));
 
-  // Sort by odds (lowest risk first)
-  betsWithDecimal.sort((a, b) => a.decimalOdds - b.decimalOdds);
+  // For high payouts, sort by highest odds (highest risk/reward)
+  const payoutRatio = targetPayout / wager;
+  if (payoutRatio > 5) {
+    betsWithDecimal.sort((a, b) => b.decimalOdds - a.decimalOdds);
+  } else {
+    // For lower payouts, sort by lowest odds (safer picks)
+    betsWithDecimal.sort((a, b) => a.decimalOdds - b.decimalOdds);
+  }
 
-  // Start with 2 picks and increase until we find a combination
-  // that gets close to target payout
+  // Calculate required odds to achieve target payout
+  const requiredDecimalOdds = targetPayout / wager;
+
+  // Try different combinations of bets to get close to target
   for (let numPicks = 2; numPicks <= Math.min(4, betsWithDecimal.length); numPicks++) {
-    // Get first numPicks bets (lowest risk)
-    const selectedBets = betsWithDecimal.slice(0, numPicks);
-    const parlayOdds = calculateParlayOdds(selectedBets.map(b => b.decimalOdds));
-    const potentialPayout = calculateParlayPayout(wager, parlayOdds);
+    // Try different combinations of numPicks bets
+    for (let startIdx = 0; startIdx <= betsWithDecimal.length - numPicks; startIdx++) {
+      const selectedBets = betsWithDecimal.slice(startIdx, startIdx + numPicks);
+      const parlayOdds = calculateParlayOdds(selectedBets.map(b => b.decimalOdds));
+      const potentialPayout = calculateParlayPayout(wager, parlayOdds);
 
-    // If this combination gets us close to target, return it
-    if (potentialPayout >= targetPayout * 0.8 && potentialPayout <= targetPayout * 1.2) {
-      return selectedBets.map(({ game, pick, odds }) => ({ game, pick, odds }));
+      // If we're within 20% of target payout, use this combination
+      if (potentialPayout >= targetPayout * 0.8 && potentialPayout <= targetPayout * 1.2) {
+        return selectedBets.map(({ game, pick, odds }) => ({ game, pick, odds }));
+      }
     }
   }
 
-  // If no optimal combination found, return minimum risk combination
-  return betsWithDecimal.slice(0, 3).map(({ game, pick, odds }) => ({ game, pick, odds }));
+  // If no optimal combination found, use bets with highest combined odds
+  const highestOddsBets = betsWithDecimal.slice(0, 3);
+  return highestOddsBets.map(({ game, pick, odds }) => ({ game, pick, odds }));
 }
