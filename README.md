@@ -1,3 +1,41 @@
+├── client/                    # Frontend React application
+│   ├── src/                  # Source files
+│   └── index.html            # Entry HTML file
+├── server/                   # Backend Express server
+│   ├── utils/               # Utility functions
+│   ├── index.ts             # Server entry point
+│   └── routes.ts            # API routes
+├── shared/                   # Shared types and utilities
+```
+
+### Essential Files
+```
+├── .env.example              # Example environment variables
+├── .gitignore               # Git ignore rules
+├── package.json             # Dependencies and scripts
+├── postcss.config.js        # PostCSS configuration
+├── tailwind.config.ts       # Tailwind CSS configuration
+├── tsconfig.json            # TypeScript configuration
+└── vite.config.ts           # Vite configuration
+```
+
+### Files to Exclude (Add to .gitignore)
+```
+.replit
+replit.nix
+.env
+node_modules/
+dist/
+*.log
+.DS_Store
+server/public/
+vite.config.ts.*
+*.tar.gz
+```
+
+## Environment Variables Required
+
+```env
 # Required
 ODDS_API_KEY=your_odds_api_key
 OPENAI_API_KEY=your_openai_api_key
@@ -7,34 +45,12 @@ SESSION_SECRET=your_session_secret
 DATABASE_URL=your_database_url
 ```
 
-## Development Dependencies
-
-This project uses several development dependencies, including some that are Replit-specific. When deploying outside of Replit, you can handle these in two ways:
-
-### Option 1: Keep Replit Dependencies
-The following Replit-specific packages provide enhanced development features:
-- `@replit/vite-plugin-shadcn-theme-json`: Theme management
-- `@replit/vite-plugin-runtime-error-modal`: Error display
-
-These packages are optional but provide useful development features. They can be kept in the project without affecting production functionality.
-
-### Option 2: Remove Replit Dependencies
-If you prefer to remove Replit-specific dependencies:
-
-1. Remove from package.json:
-```json
-"@replit/vite-plugin-shadcn-theme-json"
-"@replit/vite-plugin-runtime-error-modal"
-```
-
-2. Update vite.config.ts to remove Replit plugins (optional step)
-
-## Getting Started
+## Development
 
 1. Clone the repository
 ```bash
-git clone <your-repo-url>
-cd <repo-name>
+git clone <repository-url>
+cd <repository-name>
 ```
 
 2. Install dependencies
